@@ -22,7 +22,7 @@ class NewVisitorTest(unittest.TestCase):
         # She notices the page title and header mention to-do lists
         self.browser.get('http://localhost:8000')
         self.assertIn('To-Do', self.browser.title)
-        self.fail('Finish the test!')
+        self.fail('Finish writing the test!')
 
         # She is invited to enter a to-do item straight away
         # she types "Buy peacock feathers" into a text box
