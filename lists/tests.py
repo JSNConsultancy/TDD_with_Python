@@ -12,6 +12,11 @@ from lists.models import Item
 class HomePageTest(TestCase):
 
 
+    def test_home_page_only_saves_itesm_when_necessary(self):
+        request = HttpRequest()
+        home_page(request)
+        self.assertEqual(Item.objects.count(), 0)
+
     def test_root_url_resolves_to_home_page_view(self):
 
         found = resolve('/')
@@ -36,15 +41,25 @@ class HomePageTest(TestCase):
         new_item = Item.objects.first()
         self.assertEqual(new_item.text, 'A new list item')
 
-        self.assertIn(new_test_item, response.content.decode())
+    def test_home_page_redirects_after_post(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new list item'
 
-        expected_html = render_to_string(
-                'home.html',
-                {'new_item_text' : new_test_item}
-            )
+        response = home_page(request)
 
-        self.assertEqual(response.content.decode(), expected_html)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
 
+    def test_home_page_displays_all_list_items(self):
+        Item.objects.create(text='itemey 1')
+        Item.objects.create(text='itemey 2')
+
+        request = HttpRequest()
+        response = home_page(request)
+
+        self.assertIn('itemey 1', response.content.decode())
+        self.assertIn('itemey 2', response.content.decode())
 
 class ItemModelTest(TestCase):
 
